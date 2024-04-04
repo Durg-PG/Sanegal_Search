@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Company = require('../models/Company');
 
+
 //POST method to list the companies in Database
 router.post('/',async(req,res)=>{
     try{
@@ -93,5 +94,53 @@ router.get('/status',async(req,res)=>{
         res.status(500).json({error:'Internal Sever Error'});
     }
 })
+
+
+//Pegination for Displaying Data
+router.get('/pegination',async (req,res)=>{
+    const page = parseInt(req.query.page) || 1;
+    console.log("page==>",page)
+    const perPage = 3;
+
+    try {
+        //Count total number of companies
+        const totalCompanies = await Company.count();
+
+        //Calculate total Pages
+        const totalPages = Math.ceil(totalCompanies/perPage);
+
+        //Feth companies for the requestd page
+        const companies = await Company.findAll({
+            limit:perPage,
+            offset:(page - 1)*perPage
+        });
+        res.status(200).json({companies,totalPages,page});
+    } catch (error) {
+        console.error('Error Fetching Companies:',error);
+        res.status(500).json({error:'Internal Server Error'})
+    }
+})
+
+
+// router.post('/search', async(req,res)=>{
+//     const {query} = req.body;
+//     try {
+//         const filter = {
+//             $or:[
+//                 {name:{regex:query,$options:'i'}},
+//                 {email:{regex:query,$options:'i'}},
+//             ]
+//         }
+//         const filterData = await this.search.findAll(filter);
+//         if(filterData===0){
+//             return res.status(404).json({message:'message not found'})
+//         }
+//             return res.status(200).json(filterData)
+//     } catch (error) {
+//         console.error('Error Fetching Companies:',error);
+//         res.status(500).json({error:'Internal Server Error'})
+//     }
+
+// })
 
 module.exports = router;

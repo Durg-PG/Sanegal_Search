@@ -3,12 +3,14 @@ const bodyParser = require('body-parser');
 const sequelize = require('./db');
 const companyRoutes = require('./routes/companyRoutes');
 const app = express();
+const searchRouter = require('./Controllers/Search')
 
 const PORT = process.env.PORT || 3001;
 
 app.use(bodyParser.json());
 
 app.use('/companies',companyRoutes)
+app.use('/search',searchRouter)
 
 async function intializeDatabase(){
     try {
